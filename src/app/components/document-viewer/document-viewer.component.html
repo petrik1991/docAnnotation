@@ -1,0 +1,12 @@
+<div class="toolbar">
+    <button class="square" (click)="onSave()">Save</button>
+</div>
+
+<div class="content">
+    <ng-container *ngFor="let doc of documents | async; let i = index;">
+        <div class="doc-container">
+            <img [src]="doc.path">
+            Page {{i + 1}}
+        </div>
+    </ng-container>
+</div>
