@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnDestroy, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Observable, Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -9,7 +9,8 @@ import { IDocument } from '../../interface/i-document';
 @Component({
   selector: 'document-viewer',
   templateUrl: './document-viewer.component.html',
-  styleUrls: ['./document-viewer.component.css']
+  styleUrls: ['./document-viewer.component.css'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocumentViewerComponent implements OnInit, OnDestroy {
 
@@ -32,9 +33,14 @@ export class DocumentViewerComponent implements OnInit, OnDestroy {
   }
 
   zoom(element: HTMLElement, increase: boolean = false): void {
-    const curScale = element.style.scale === '' ? 1 : +element.style.scale;
-    const scale = increase ? curScale + 0.1 : curScale - 0.1;
-    element.style.scale = scale.toString();
+    const curWidth = element.clientWidth;
+    const curHeight = element.clientHeight;
+    const direction = increase ? 1 : -1;
+    const width = (curWidth * 0.1 * direction) + curWidth;
+    const height = (curHeight * 0.1 * direction) + curHeight;
+
+    element.style.width = `${width}px`;
+    element.style.height = `${height}px`;
   }
 
   getDocs(): void {

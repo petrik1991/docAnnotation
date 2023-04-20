@@ -13,9 +13,10 @@
 }
 
 .content>.entity>.container {
-    display   : flex;
-    max-height: 1120px;
-    overflow  : auto;
+    display        : flex;
+    overflow       : auto;
+    align-items    : center;
+    justify-content: center;
 }
 
 .content>.entity>.controls {
@@ -29,8 +30,11 @@
 
 .content>.entity>.controls>button {
     margin: 8px;
-    width : 24px;
     height: 24px;
+}
+
+.content>.entity>.controls>.zoom {
+    width: 24px;
 }
 
 .content>.entity>.container>img {
@@ -42,7 +46,31 @@
     padding         : 4px;
 }
 
-.toolbar>.square {
+.toolbar>.btn-size {
     height     : 40px;
     margin-left: 8px;
+}
+
+@media (max-height: 1800px) {
+    .content>.entity>.container>img,
+    .content>.entity>.container {
+        height: 1754px;
+        width : 1240px;
+    }
+}
+
+@media (max-height: 1200px) {
+    .content>.entity>.container>img,
+    .content>.entity>.container {
+        height: 846px;
+        width : 600px;
+    }
+}
+
+@media (max-height: 900px) {
+    .content>.entity>.container>img,
+    .content>.entity>.container {
+        height: 705px;
+        width : 500px;
+    }
 }

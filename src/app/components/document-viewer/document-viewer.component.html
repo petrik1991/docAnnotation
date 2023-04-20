@@ -1,5 +1,5 @@
 <div class="toolbar">
-    <button class="square" (click)="onSave()">Save</button>
+    <button class="btn-size" (click)="onSave()">Save</button>
 </div>
 
 <div class="content">
@@ -11,8 +11,10 @@
 
             <div class="controls">
                 Page {{i + 1}}
-                <button (click)="zoom(img, true)">+</button>
-                <button (click)="zoom(img)">-</button>
+                <input #input type="file" style="display: none;">
+                <button class="zoom" (click)="zoom(img, true)">+</button>
+                <button class="zoom" (click)="zoom(img)">-</button>
+                <button (click)="input.click()">Add annotation</button>
             </div>
         </div>
     </ng-container>
