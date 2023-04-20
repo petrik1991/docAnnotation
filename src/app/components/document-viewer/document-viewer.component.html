@@ -4,9 +4,16 @@
 
 <div class="content">
     <ng-container *ngFor="let doc of documents | async; let i = index;">
-        <div class="doc-container">
-            <img [src]="doc.path">
-            Page {{i + 1}}
+        <div class="entity">
+            <div class="container">
+                <img #img [src]="doc.path">
+            </div>
+
+            <div class="controls">
+                Page {{i + 1}}
+                <button (click)="zoom(img, true)">+</button>
+                <button (click)="zoom(img)">-</button>
+            </div>
         </div>
     </ng-container>
 </div>

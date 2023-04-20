@@ -5,14 +5,35 @@
     background-color: #DADEE7;
 }
 
-.content>.doc-container {
+.content>.entity {
     display       : flex;
     flex-direction: column;
     align-items   : center;
     margin        : 16px 0;
 }
 
-.content>.doc-container>img {
+.content>.entity>.container {
+    display   : flex;
+    max-height: 1120px;
+    overflow  : auto;
+}
+
+.content>.entity>.controls {
+    display        : flex;
+    align-items    : center;
+    justify-content: center;
+    border-top     : 1px dashed black;
+    margin-top     : 16px;
+    width          : 100%;
+}
+
+.content>.entity>.controls>button {
+    margin: 8px;
+    width : 24px;
+    height: 24px;
+}
+
+.content>.entity>.container>img {
     box-shadow: 0 2px 8px #9DA8BE;
 }
 

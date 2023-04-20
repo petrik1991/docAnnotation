@@ -31,6 +31,12 @@ export class DocumentViewerComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
+  zoom(element: HTMLElement, increase: boolean = false): void {
+    const curScale = element.style.scale === '' ? 1 : +element.style.scale;
+    const scale = increase ? curScale + 0.1 : curScale - 0.1;
+    element.style.scale = scale.toString();
+  }
+
   getDocs(): void {
     this.documents = this.documentsService.get()
       .pipe(takeUntil(this.destroy$));
