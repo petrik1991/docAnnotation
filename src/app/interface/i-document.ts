@@ -1,6 +1,6 @@
-import { IAnotation } from './i-annotation';
+import { IAnnotation } from './i-annotation';
 
 export interface IDocument {
     path: string;
-    annotations?: IAnotation[]
+    annotations: Map<string, IAnnotation>;
 }

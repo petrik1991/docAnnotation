@@ -1,6 +1,8 @@
+import { ICoordinates } from './i-coordinates';
 import { IPoint } from './i-point';
 
-export interface IAnotation {
-    path: string;
-    coords: IPoint;
+export interface IAnnotation extends ICoordinates {
+    coordinates: IPoint;
+    content: string;
+    domElement: HTMLElement;
 }

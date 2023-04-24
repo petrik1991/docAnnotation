@@ -14,6 +14,7 @@
 
 .content>.entity>.container {
     display        : flex;
+    position       : relative;
     overflow       : auto;
     align-items    : center;
     justify-content: center;
@@ -38,6 +39,9 @@
 }
 
 .content>.entity>.container>img {
+    position  : absolute;
+    top       : 0;
+    left      : 0;
     box-shadow: 0 2px 8px #9DA8BE;
 }
 
@@ -52,6 +56,7 @@
 }
 
 @media (max-height: 1800px) {
+
     .content>.entity>.container>img,
     .content>.entity>.container {
         height: 1754px;
@@ -60,6 +65,7 @@
 }
 
 @media (max-height: 1200px) {
+
     .content>.entity>.container>img,
     .content>.entity>.container {
         height: 846px;
@@ -68,6 +74,7 @@
 }
 
 @media (max-height: 900px) {
+
     .content>.entity>.container>img,
     .content>.entity>.container {
         height: 705px;
