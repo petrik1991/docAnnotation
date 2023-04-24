@@ -3,19 +3,19 @@
 </div>
 
 <div class="content">
-    <ng-container *ngFor="let doc of documents; let i = index;">
+    <ng-container *ngFor="let doc of documents | async; let i = index;">
         <div class="entity">
             <div #container
                  class="container"
                  (dragover)="onDragOver($event)"
-                 (drop)="onDrop($event, doc)"
+                 (drop)="onDrop($event)"
             >
                 <img #img [src]="doc.path">
             </div>
 
             <div class="controls">
                 Page {{i + 1}}
-                <input #input type="file" style="display: none;" (change)="onFileSelected($event, container, doc)">
+                <input #input type="file" style="display: none;" (change)="onFileSelected($event, doc)">
                 <button class="zoom" (click)="zoom(img, doc, true)">+</button>
                 <button class="zoom" (click)="zoom(img, doc)">-</button>
                 <button (click)="input.click()">Add annotation</button>

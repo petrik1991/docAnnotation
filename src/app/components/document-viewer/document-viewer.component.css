@@ -12,6 +12,14 @@
     margin        : 16px 0;
 }
 
+.content>.entity>.container>img {
+    border: none;
+}
+
+.content>.entity>.container>.active {
+    border: 1px solid red;
+}
+
 .content>.entity>.container {
     display        : flex;
     position       : relative;

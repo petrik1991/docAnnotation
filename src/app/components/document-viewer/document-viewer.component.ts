@@ -1,13 +1,13 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, OnInit, Renderer2 } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, ElementRef, OnDestroy, OnInit, Renderer2, ViewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { Observable, Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { Observable, Subject, fromEvent } from 'rxjs';
+import { mapTo, takeUntil, tap } from 'rxjs/operators';
 
 import { ApiDocumentsService } from '../../model/api-documents.service';
 import { IDocument } from '../../interface/i-document';
 import { AnnotationFabric } from '../../model/annotation-fabric';
-import { ICoordinates } from 'src/app/interface/i-coordinates';
-import { zoom } from 'src/app/utils/zoom';
+import { zoom } from '../../utils/zoom';
+import { IAnnotation } from '../../interface/i-annotation';
 
 @Component({
   selector: 'document-viewer',
@@ -15,11 +15,15 @@ import { zoom } from 'src/app/utils/zoom';
   styleUrls: ['./document-viewer.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DocumentViewerComponent implements OnInit, OnDestroy {
+export class DocumentViewerComponent implements OnInit, AfterViewInit, OnDestroy {
 
-  documents: IDocument[] = [];
-  selectedAnno: ICoordinates | null = null;
+  @ViewChild('container')
+  container!: ElementRef;
 
+  documents!: Observable<IDocument[]>;
+
+  private selectedAnnotation: IAnnotation | null = null;
+  private annotations = new Map<string, IAnnotation>();
   private readonly destroy$ = new Subject<void>();
 
   constructor(
@@ -32,33 +36,53 @@ export class DocumentViewerComponent implements OnInit, OnDestroy {
     this.getDocs();
   }
 
+  public ngAfterViewInit(): void {
+    Array.from(this.annotations.values()).forEach(anno => {
+      anno.initAnnotation(anno.content, this.container.nativeElement);
+      this.addListeners(anno);
+    });
+    fromEvent<KeyboardEvent>(window.document, 'keyup')
+      .subscribe((event: KeyboardEvent) => {
+        if (this.selectedAnnotation && event.key.toLocaleLowerCase() === 'backspace') {
+          this.annotations.delete(this.selectedAnnotation.id);
+          this.selectedAnnotation.document.annotations = Array.from(this.annotations.values())
+            .filter(item => item.id !== this.selectedAnnotation!.id);
+          this.selectedAnnotation.domElement.remove();
+          this.selectedAnnotation = null;
+        }
+      });
+  }
+
   public ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  onFileSelected(event: Event, container: HTMLDivElement, doc: IDocument): void {
+  async onFileSelected(event: Event, doc: IDocument): Promise<void> {
     const file = (<HTMLInputElement>event.target!).files![0];
-    const anno = AnnotationFabric.create(file.type, this.renderer);
-    this.selectedAnno = anno.readFile(file, container, doc);
+    const entity = AnnotationFabric.create(file.type, this.renderer);
+    const anno = await entity.readFile(file, this.container.nativeElement, doc);
+
+    this.addListeners(anno);
+    doc.annotations.push(anno);
+    this.annotations.set(anno.id, anno);
   }
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
   }
 
-  onDrop(event: DragEvent, doc: IDocument): void {
+  onDrop(event: DragEvent): void {
     const key = event.dataTransfer!.getData('text');
-    const anno = doc.annotations.get(key);
+    const anno = this.annotations.get(key)!;
     const coordinates = { x: event.offsetX, y: event.offsetY };
-    this.selectedAnno = anno as ICoordinates;
-    this.selectedAnno!.setCoordinates(coordinates);
+    anno.setCoordinates(coordinates);
   }
 
   zoom(element: HTMLElement, doc: IDocument, zoomIn: boolean = false): void {
     zoom(element, zoomIn);
 
-    Array.from(doc.annotations.values()).forEach(anno => {
+    doc.annotations.forEach(anno => {
       zoom(anno.domElement, zoomIn);
       const curTop = anno.domElement.offsetTop;
       const curLeft = anno.domElement.offsetLeft;
@@ -71,13 +95,41 @@ export class DocumentViewerComponent implements OnInit, OnDestroy {
     });
   }
 
-  getDocs(): void {
-    this.documentsService.get()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(docs => this.documents = docs);
+  onSave(): void {
+    console.log(this.documents);
+    this.documents.pipe(
+      mapTo(this.documentsService.save)
+    );
+    this.router.navigate(['/']);
   }
 
-  onSave(): void {
-    this.router.navigate(['/']);
+  private addListeners(anno: IAnnotation): void {
+    anno.domElement.addEventListener('dragstart', (dragEvent: DragEvent) => {
+      dragEvent.dataTransfer!.setData('text/plain', anno.id);
+      this.selectedAnnotation = anno;
+      this.selectedAnnotation.domElement.className = 'active';
+    });
+    anno.domElement.addEventListener('click', () => {
+      if (this.selectedAnnotation === anno) {
+        this.selectedAnnotation.domElement.classList.remove('active');
+        this.selectedAnnotation = null;
+      }
+      else {
+        this.selectedAnnotation = anno;
+        this.selectedAnnotation.domElement.className = 'active';
+      }
+    });
+  }
+
+  private getDocs(): void {
+    this.documents = this.documentsService.get()
+      .pipe(
+        takeUntil(this.destroy$),
+        tap(data => {
+          data.forEach(doc => {
+            doc.annotations.forEach(anno => this.annotations.set(anno.id, anno));
+          });
+        })
+      );
   }
 }
